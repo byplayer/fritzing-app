@@ -1,5 +1,5 @@
 #!/bin/bash -e
-QTBIN=/usr/local/opt/qt5/bin
+QTBIN=$(brew --prefix qt5)/bin
 
 # Go to this scripts directory and then one up
 toolsdir=$(dirname "${BASH_SOURCE[0]}")
@@ -15,13 +15,13 @@ echo "$deploydir"
 rm -rf "$deploydir"
 mkdir "$deploydir"
 
-builddir=$workingdir/../release64  # this is pre-defined by Qt
+builddir=$workingdir/../release64 # this is pre-defined by Qt
 echo ">> build directory"
 echo "$builddir"
 
 echo ">> building fritzing from working directory"
 $QTBIN/qmake -o Makefile phoenix.pro
-make "-j$(sysctl -n machdep.cpu.thread_count)" release  # release is the type of build
+make "-j$(sysctl -n machdep.cpu.thread_count)" release # release is the type of build
 cp -r "$builddir/Fritzing.app" "$deploydir"
 
 supportdir=$deploydir/Fritzing.app/Contents/MacOS
@@ -34,13 +34,13 @@ cp -rf sketches help translations INSTALL.txt README.md LICENSE.CC-BY-SA LICENSE
 
 echo ">> clean translations"
 cd "$supportdir"
-rm -f ./translations/*.ts  			# remove translation xml files, since we only need the binaries in the release
-find ./translations -name "*.qm" -size -128c -delete   # delete empty translation binaries
+rm -f ./translations/*.ts                            # remove translation xml files, since we only need the binaries in the release
+find ./translations -name "*.qm" -size -128c -delete # delete empty translation binaries
 
 echo ">> clone parts repository"
 git clone --branch master --single-branch https://github.com/fritzing/fritzing-parts.git
 echo ">> build parts database"
-./Fritzing -db "fritzing-parts/parts.db"  # -pp "fritzing-parts" -f "."
+./Fritzing -db "fritzing-parts/parts.db" # -pp "fritzing-parts" -f "."
 
 echo ">> add .app dependencies"
 cd "$deploydir"
